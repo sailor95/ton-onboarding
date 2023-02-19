@@ -1,4 +1,4 @@
-import { Address, TonClient } from 'ton'
+import { Address, TonClient, toNano } from 'ton'
 import * as dotenv from 'dotenv'
 import { BN } from 'bn.js'
 import { unixNow } from './src/lib/utils'
@@ -67,6 +67,34 @@ async function main() {
     'msg_hash < pow_complexity: ',
     new BN(msg.hash(), 'be').lt(complexity)
   )
+  console.log(' ')
+  console.log(
+    '💣 WARNING! As soon as you find the hash, you should quickly make a transaction.'
+  )
+  console.log(
+    'If someone else makes a transaction, the seed changes, and you have to find a hash again!'
+  )
+  console.log(' ')
+
+  // flags work only in user-friendly address form
+  const collectionAddr = collection.toFriendly({
+    urlSafe: true,
+    bounceable: true,
+  })
+  // we must convert TON to nanoTON
+  const amountToSend = toNano('0.05').toString()
+  // BOC means Bag Of Cells here
+  const preparedBodyCell = msg.toBoc().toString('base64url')
+
+  // final method to build a payment url
+  const tonDeepLink = (address: string, amount: string, body: string) => {
+    return `ton://transfer/${address}?amount=${amount}&bin=${body}`
+  }
+
+  const link = tonDeepLink(collectionAddr, amountToSend, preparedBodyCell)
+
+  console.log('🚀 Link to receive an NFT:')
+  console.log(link)
 }
 
 main()
