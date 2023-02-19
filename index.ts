@@ -39,14 +39,34 @@ async function main() {
     seed, // unique seed from get_mining_data
   }
   let msg = Queries.mine(mineParams) // transaction builder
+  let progress = 0
 
   while (new BN(msg.hash(), 'be').gt(complexity)) {
+    progress += 1
+    console.clear()
+    console.log(
+      `Mining started: please, wait for 30-60 seconds to mine your NFT!`
+    )
+    console.log(' ')
+    console.log(
+      `⛏ Mined ${progress} hashes! Last: `,
+      new BN(msg.hash(), 'be').toString()
+    )
+
     mineParams.expire = unixNow() + 300
     mineParams.data1.iaddn(1)
     msg = Queries.mine(mineParams)
   }
 
-  console.log('Dang son, you found something!')
+  console.log(' ')
+  console.log('💎 Mission completed: msg_hash less than pow_complexity found!')
+  console.log(' ')
+  console.log('msg_hash: ', new BN(msg.hash(), 'be').toString())
+  console.log('pow_complexity: ', complexity.toString())
+  console.log(
+    'msg_hash < pow_complexity: ',
+    new BN(msg.hash(), 'be').lt(complexity)
+  )
 }
 
 main()
